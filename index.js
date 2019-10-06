@@ -1,5 +1,8 @@
 const readline = require('readline');
-const axios = require('axios');
+const WebSocket = require('ws');
+
+// Create a new WebSocket isntance for talking to smith-api
+const ws = new WebSocket('ws://localhost:3500/api/invoke');
 
 /**
  * smith-cli is a command line tool that will infinitely
@@ -38,16 +41,25 @@ const listen = () => {
         }
     
         // Invoke smith-api with the given input command
-        const result = await axios.post('http://localhost:3500/api/invoke', {
-            command: input.toLowerCase(),
-        });
-    
-        write(result.data);
-
-        listen();
+        await ws.send(input.toLowerCase());
     });
 };
 
-write('Hello');
+// Start listening when WebSocket connection has opened
+ws.on('open', () => {
+    write('Hello');
 
-listen();
+    listen();
+});
+
+// Write any WebSocket output
+ws.on('message', (msg) => {
+    const result = JSON.parse(msg);
+
+    write(result.message);
+
+    // If the command invocation is complete, start listening again for another
+    if (result.complete) {
+        listen();
+    }
+});
