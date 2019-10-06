@@ -7,7 +7,6 @@
     "build": "./index.js | nexe -o ./mr-smith"
   },
   "dependencies": {
-    "axios": "^0.19.0",
     "ws": "^7.1.2"
   },
   "devDependencies": {
